@@ -1,11 +1,11 @@
-
 import React from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import Stats from "@/components/dashboard/Stats";
 import AppointmentCard from "@/components/dashboard/AppointmentCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CalendarClock, ArrowRight, TrendingUp, UserPlus } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Calendar, Clock, CalendarClock, ArrowRight, TrendingUp, UserPlus } from "lucide-react";
 
 const Dashboard = () => {
   const upcomingAppointments = [
