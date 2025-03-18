@@ -18,17 +18,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const timeSlots = [
-  "09:00",
-  "10:00",
-  "11:00",
-  "12:00",
-  "13:00",
-  "14:00",
-  "15:00",
-  "16:00",
-  "17:00",
+  "09:00", "10:00", "11:00", "12:00", "13:00", 
+  "14:00", "15:00", "16:00", "17:00",
 ];
 
 interface Appointment {
@@ -94,10 +88,11 @@ const AppointmentCalendar = () => {
   const [date, setDate] = useState<Date>(new Date());
   const formattedDate = formatDateForKey(date);
   const dayAppointments = mockAppointments[formattedDate] || [];
+  const isMobile = useIsMobile();
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <Card className="col-span-1 h-min">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <Card className={`${isMobile ? 'order-1' : ''} col-span-1 h-min`}>
         <CardHeader>
           <CardTitle>Calendário</CardTitle>
           <CardDescription>
@@ -109,7 +104,7 @@ const AppointmentCalendar = () => {
             mode="single"
             selected={date}
             onSelect={(newDate) => newDate && setDate(newDate)}
-            className="rounded-md border p-3 pointer-events-auto"
+            className="rounded-md border p-3 mx-auto"
           />
           
           <div className="mt-6">
@@ -133,9 +128,9 @@ const AppointmentCalendar = () => {
         </CardContent>
       </Card>
       
-      <Card className="col-span-1 md:col-span-2">
+      <Card className="col-span-1 lg:col-span-2">
         <CardHeader>
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
             <div>
               <CardTitle className="flex items-center">
                 <CalendarIcon className="mr-2 h-5 w-5" />
@@ -160,7 +155,7 @@ const AppointmentCalendar = () => {
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 md:p-6">
           <div className="grid grid-cols-1 gap-4">
             {timeSlots.map((time) => {
               const appointmentsAtTime = dayAppointments.filter(
@@ -168,7 +163,7 @@ const AppointmentCalendar = () => {
               );
               
               return (
-                <div key={time} className="grid grid-cols-[80px_1fr] gap-4">
+                <div key={time} className="grid grid-cols-[70px_1fr] md:grid-cols-[80px_1fr] gap-2 md:gap-4">
                   <div className="flex items-center justify-end">
                     <span className="text-sm font-medium text-gray-600">
                       {time}
@@ -181,9 +176,9 @@ const AppointmentCalendar = () => {
                         {appointmentsAtTime.map((appointment) => (
                           <div
                             key={appointment.id}
-                            className="flex items-center justify-between p-3 bg-white rounded-md shadow-sm border border-gray-100"
+                            className="flex items-center justify-between p-2 md:p-3 bg-white rounded-md shadow-sm border border-gray-100"
                           >
-                            <div className="flex items-center space-x-3">
+                            <div className="flex items-center space-x-2 md:space-x-3">
                               <Avatar className="h-8 w-8">
                                 <AvatarImage src={appointment.clientImage} alt={appointment.clientName} />
                                 <AvatarFallback>{appointment.clientName.charAt(0)}</AvatarFallback>
@@ -192,10 +187,10 @@ const AppointmentCalendar = () => {
                                 <h4 className="font-medium text-sm">
                                   {appointment.clientName}
                                 </h4>
-                                <div className="flex items-center space-x-2 text-xs text-gray-500">
-                                  <span>{appointment.service}</span>
+                                <div className="flex items-center space-x-1 md:space-x-2 text-xs text-gray-500">
+                                  <span className="truncate max-w-[80px] md:max-w-full">{appointment.service}</span>
                                   <span>•</span>
-                                  <div className="flex items-center">
+                                  <div className="flex items-center whitespace-nowrap">
                                     <Clock className="mr-1 h-3 w-3" />
                                     {appointment.duration}
                                   </div>
@@ -204,7 +199,7 @@ const AppointmentCalendar = () => {
                             </div>
                             
                             <div className="flex items-center">
-                              <Badge className="mr-2 bg-green-50 text-green-700 hover:bg-green-100 border border-green-200">
+                              <Badge className="hidden sm:flex mr-2 bg-green-50 text-green-700 hover:bg-green-100 border border-green-200">
                                 Confirmado
                               </Badge>
                               <DropdownMenu>
