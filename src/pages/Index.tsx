@@ -137,11 +137,11 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col w-full overflow-hidden">
       <Navbar />
       
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 overflow-hidden">
+      <section className="relative pt-32 pb-20 overflow-hidden w-full">
         <div className="absolute inset-0 bg-gradient-to-b from-gray-50 to-white -z-10"></div>
         <div 
           className="absolute inset-x-0 top-0 -z-10 transform-gpu overflow-hidden"
@@ -150,7 +150,7 @@ const Index = () => {
           <div className="absolute -translate-x-1/2 translate-y-[-10%] left-1/2 -z-10 aspect-[1155/678] w-[36.125rem] bg-gradient-to-tr from-[#f0f0f0] to-[#f8f8f8] opacity-30 sm:w-[72.1875rem]"></div>
         </div>
         
-        <div className="max-w-7xl mx-auto px-6 md:px-10">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
           <div className="text-center max-w-3xl mx-auto mb-16 animate-blur-in">
             <span className="inline-block px-4 py-1 rounded-full bg-gray-100 text-gray-800 text-sm font-medium mb-6">
               Revolucione a forma de agendamento da sua barbearia
@@ -185,8 +185,8 @@ const Index = () => {
       </section>
       
       {/* Features Section */}
-      <section className="py-20 bg-white" id="features" ref={featuresRef}>
-        <div className="max-w-7xl mx-auto px-6 md:px-10">
+      <section className="py-20 bg-white w-full" id="features" ref={featuresRef}>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="inline-block px-4 py-1 rounded-full bg-gray-100 text-gray-800 text-sm font-medium mb-6">
               Recursos
@@ -216,8 +216,8 @@ const Index = () => {
       </section>
       
       {/* Proactive Scheduling Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-6 md:px-10">
+      <section className="py-20 bg-gray-50 w-full">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div className="order-2 lg:order-1">
               <span className="inline-block px-4 py-1 rounded-full bg-gray-100 text-gray-800 text-sm font-medium mb-6">
@@ -282,8 +282,8 @@ const Index = () => {
       </section>
       
       {/* Pricing Section */}
-      <section className="py-20 bg-white" id="pricing">
-        <div className="max-w-7xl mx-auto px-6 md:px-10">
+      <section className="py-20 bg-white w-full" id="pricing">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="inline-block px-4 py-1 rounded-full bg-gray-100 text-gray-800 text-sm font-medium mb-6">
               Preços
@@ -352,8 +352,8 @@ const Index = () => {
       </section>
       
       {/* Contact Section */}
-      <section className="py-20 bg-gray-50" id="contact">
-        <div className="max-w-7xl mx-auto px-6 md:px-10">
+      <section className="py-20 bg-gray-50 w-full" id="contact">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
             <div>
               <span className="inline-block px-4 py-1 rounded-full bg-gray-100 text-gray-800 text-sm font-medium mb-6">
@@ -441,8 +441,8 @@ const Index = () => {
       </section>
       
       {/* CTA Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-5xl mx-auto px-6 md:px-10 text-center">
+      <section className="py-20 bg-white w-full">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl text-center">
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-6 text-gray-900">
             Transforme a experiência de agendamento da sua barbearia hoje
           </h2>
