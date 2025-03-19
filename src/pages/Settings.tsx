@@ -6,6 +6,7 @@ import ProfileSettings from "@/components/settings/ProfileSettings";
 import WorkingHoursSettings from "@/components/settings/WorkingHoursSettings";
 import ServicesSettings from "@/components/settings/ServicesSettings";
 import NotificationsSettings from "@/components/settings/NotificationsSettings";
+import WhatsAppContacts from "@/components/settings/WhatsAppContacts";
 
 const Settings = () => {
   return (
@@ -24,6 +25,7 @@ const Settings = () => {
             <TabsTrigger value="working-hours">Horário de Funcionamento</TabsTrigger>
             <TabsTrigger value="services">Serviços</TabsTrigger>
             <TabsTrigger value="notifications">Notificações</TabsTrigger>
+            <TabsTrigger value="whatsapp-contacts">Contatos WhatsApp</TabsTrigger>
           </TabsList>
           <TabsContent value="profile" className="space-y-4">
             <ProfileSettings />
@@ -36,6 +38,9 @@ const Settings = () => {
           </TabsContent>
           <TabsContent value="notifications" className="space-y-4">
             <NotificationsSettings />
+          </TabsContent>
+          <TabsContent value="whatsapp-contacts" className="space-y-4">
+            <WhatsAppContacts />
           </TabsContent>
         </Tabs>
       </div>
