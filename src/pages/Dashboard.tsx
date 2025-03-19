@@ -18,6 +18,7 @@ const Dashboard = () => {
       time: "10:30",
       date: "Hoje",
       status: "upcoming" as const,
+      duration: "30 min",
     },
     {
       client: {
@@ -28,6 +29,7 @@ const Dashboard = () => {
       time: "11:45",
       date: "Hoje",
       status: "upcoming" as const,
+      duration: "30 min",
     },
     {
       client: {
@@ -38,6 +40,7 @@ const Dashboard = () => {
       time: "14:15",
       date: "Hoje",
       status: "upcoming" as const,
+      duration: "60 min",
     },
     {
       client: {
@@ -48,6 +51,7 @@ const Dashboard = () => {
       time: "10:00",
       date: "Amanhã",
       status: "upcoming" as const,
+      duration: "30 min",
     },
   ];
 
@@ -97,11 +101,7 @@ const Dashboard = () => {
                   {upcomingAppointments.map((appointment, index) => (
                     <AppointmentCard
                       key={index}
-                      client={appointment.client}
-                      service={appointment.service}
-                      time={appointment.time}
-                      date={appointment.date}
-                      status={appointment.status}
+                      appointment={appointment}
                     />
                   ))}
                 </div>

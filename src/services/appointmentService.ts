@@ -13,7 +13,7 @@ export async function getAppointments(): Promise<Appointment[]> {
     throw error;
   }
   
-  return data || [];
+  return data as Appointment[] || [];
 }
 
 export async function getAppointmentsForDate(date: string): Promise<Appointment[]> {
@@ -27,7 +27,7 @@ export async function getAppointmentsForDate(date: string): Promise<Appointment[
     throw error;
   }
   
-  return data || [];
+  return data as Appointment[] || [];
 }
 
 export async function getAppointment(id: string): Promise<Appointment | null> {
@@ -41,7 +41,7 @@ export async function getAppointment(id: string): Promise<Appointment | null> {
     throw error;
   }
   
-  return data;
+  return data as Appointment | null;
 }
 
 export async function createAppointment(appointment: Omit<Appointment, 'id' | 'created_at' | 'updated_at'>): Promise<Appointment> {
@@ -55,7 +55,7 @@ export async function createAppointment(appointment: Omit<Appointment, 'id' | 'c
     throw error;
   }
   
-  return data;
+  return data as Appointment;
 }
 
 export async function updateAppointment(id: string, appointment: Partial<Omit<Appointment, 'id' | 'created_at' | 'updated_at'>>): Promise<Appointment> {
@@ -70,7 +70,7 @@ export async function updateAppointment(id: string, appointment: Partial<Omit<Ap
     throw error;
   }
   
-  return data;
+  return data as Appointment;
 }
 
 export async function deleteAppointment(id: string): Promise<void> {

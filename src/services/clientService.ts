@@ -12,7 +12,7 @@ export async function getClients(): Promise<Client[]> {
     throw error;
   }
   
-  return data || [];
+  return data as Client[] || [];
 }
 
 export async function getClient(id: string): Promise<Client | null> {
@@ -26,7 +26,7 @@ export async function getClient(id: string): Promise<Client | null> {
     throw error;
   }
   
-  return data;
+  return data as Client | null;
 }
 
 export async function createClient(client: Omit<Client, 'id' | 'created_at' | 'updated_at'>): Promise<Client> {
@@ -40,7 +40,7 @@ export async function createClient(client: Omit<Client, 'id' | 'created_at' | 'u
     throw error;
   }
   
-  return data;
+  return data as Client;
 }
 
 export async function updateClient(id: string, client: Partial<Omit<Client, 'id' | 'created_at' | 'updated_at'>>): Promise<Client> {
@@ -55,7 +55,7 @@ export async function updateClient(id: string, client: Partial<Omit<Client, 'id'
     throw error;
   }
   
-  return data;
+  return data as Client;
 }
 
 export async function deleteClient(id: string): Promise<void> {

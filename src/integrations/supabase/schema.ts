@@ -8,7 +8,7 @@ export interface Client {
   last_visit: string | null;
   total_visits: number;
   favorite_service: string | null;
-  status: 'active' | 'inactive' | 'new';
+  status: 'active' | 'inactive' | 'new' | string; // Added string union type to accommodate database values
   created_at: string;
   updated_at: string;
 }
@@ -30,7 +30,7 @@ export interface Appointment {
   date: string;
   time: string;
   duration: number;
-  status: 'upcoming' | 'completed' | 'cancelled';
+  status: 'upcoming' | 'completed' | 'cancelled' | string; // Added string union type to accommodate database values
   notes: string | null;
   created_at: string;
   updated_at: string;
