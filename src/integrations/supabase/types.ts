@@ -9,7 +9,132 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      appointments: {
+        Row: {
+          client_id: string | null
+          created_at: string | null
+          date: string
+          duration: number
+          id: string
+          notes: string | null
+          service_id: string | null
+          status: string | null
+          time: string
+          updated_at: string | null
+        }
+        Insert: {
+          client_id?: string | null
+          created_at?: string | null
+          date: string
+          duration: number
+          id?: string
+          notes?: string | null
+          service_id?: string | null
+          status?: string | null
+          time: string
+          updated_at?: string | null
+        }
+        Update: {
+          client_id?: string | null
+          created_at?: string | null
+          date?: string
+          duration?: number
+          id?: string
+          notes?: string | null
+          service_id?: string | null
+          status?: string | null
+          time?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clients: {
+        Row: {
+          created_at: string | null
+          email: string
+          favorite_service: string | null
+          id: string
+          image_url: string | null
+          last_visit: string | null
+          name: string
+          phone: string | null
+          status: string | null
+          total_visits: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          favorite_service?: string | null
+          id?: string
+          image_url?: string | null
+          last_visit?: string | null
+          name: string
+          phone?: string | null
+          status?: string | null
+          total_visits?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          favorite_service?: string | null
+          id?: string
+          image_url?: string | null
+          last_visit?: string | null
+          name?: string
+          phone?: string | null
+          status?: string | null
+          total_visits?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      services: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          duration: number
+          id: string
+          name: string
+          price: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          duration: number
+          id?: string
+          name: string
+          price: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          duration?: number
+          id?: string
+          name?: string
+          price?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

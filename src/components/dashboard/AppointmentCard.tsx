@@ -4,19 +4,25 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Clock, Calendar, Scissors } from "lucide-react";
+import { Appointment } from "@/integrations/supabase/schema";
 
 interface AppointmentCardProps {
-  client: {
-    name: string;
-    imageUrl?: string;
+  appointment: {
+    client: {
+      name: string;
+      imageUrl?: string;
+    };
+    service: string;
+    time: string;
+    date: string;
+    status: "upcoming" | "completed" | "cancelled";
+    duration: string;
   };
-  service: string;
-  time: string;
-  date: string;
-  status: "upcoming" | "completed" | "cancelled";
 }
 
-const AppointmentCard = ({ client, service, time, date, status }: AppointmentCardProps) => {
+const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
+  const { client, service, time, date, status, duration } = appointment;
+  
   const statusColorMap = {
     upcoming: "bg-blue-50 text-blue-700 border-blue-200",
     completed: "bg-green-50 text-green-700 border-green-200",
@@ -61,7 +67,7 @@ const AppointmentCard = ({ client, service, time, date, status }: AppointmentCar
           </div>
           <div className="flex items-center">
             <Scissors className="w-4 h-4 mr-1 text-gray-400" />
-            <span className="text-gray-600">45min</span>
+            <span className="text-gray-600">{duration}</span>
           </div>
         </div>
       </CardContent>
