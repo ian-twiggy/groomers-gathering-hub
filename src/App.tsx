@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import Clients from "./pages/Clients";
 import Calendar from "./pages/Calendar";
+import Reports from "./pages/Reports";
 import ProactiveScheduling from "./pages/ProactiveScheduling";
 import NotFound from "./pages/NotFound";
 import { useEffect } from "react";
@@ -47,6 +48,7 @@ const App = () => {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/clients" element={<Clients />} />
               <Route path="/calendar" element={<Calendar />} />
+              <Route path="/reports" element={<Reports />} />
               <Route path="/proactive-scheduling" element={<ProactiveScheduling />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
