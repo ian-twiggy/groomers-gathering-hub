@@ -6,16 +6,11 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { DateRange } from "react-day-picker";
 
 interface DateRangePickerProps {
-  dateRange: {
-    from: Date | undefined;
-    to: Date | undefined;
-  };
-  setDateRange: React.Dispatch<React.SetStateAction<{
-    from: Date | undefined;
-    to: Date | undefined;
-  }>>;
+  dateRange: DateRange | undefined;
+  setDateRange: React.Dispatch<React.SetStateAction<DateRange | undefined>>;
 }
 
 const DateRangePicker = ({ dateRange, setDateRange }: DateRangePickerProps) => {
@@ -29,7 +24,7 @@ const DateRangePicker = ({ dateRange, setDateRange }: DateRangePickerProps) => {
             className="w-full justify-start text-left font-normal md:w-auto"
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
-            {dateRange.from ? (
+            {dateRange?.from ? (
               dateRange.to ? (
                 <>
                   {format(dateRange.from, "dd/MM/yyyy", { locale: ptBR })} -{" "}
@@ -47,16 +42,14 @@ const DateRangePicker = ({ dateRange, setDateRange }: DateRangePickerProps) => {
           <Calendar
             initialFocus
             mode="range"
-            defaultMonth={dateRange.from}
-            selected={{
-              from: dateRange.from,
-              to: dateRange.to,
-            }}
+            defaultMonth={dateRange?.from}
+            selected={dateRange}
             onSelect={(selected) => {
-              setDateRange(selected || { from: undefined, to: undefined });
+              setDateRange(selected);
             }}
             numberOfMonths={2}
             locale={ptBR}
+            className="pointer-events-auto"
           />
         </PopoverContent>
       </Popover>

@@ -1,4 +1,3 @@
-
 import React, { useMemo } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 import { parseISO, isWithinInterval } from "date-fns";
@@ -6,12 +5,10 @@ import { useQuery } from "@tanstack/react-query";
 import { getAppointments } from "@/services/appointmentService";
 import { getServices } from "@/services/serviceService";
 import { Service } from "@/integrations/supabase/schema";
+import { DateRange } from "react-day-picker";
 
 interface ServicePopularityProps {
-  dateRange: {
-    from: Date | undefined;
-    to: Date | undefined;
-  };
+  dateRange: DateRange;
   type?: "count" | "revenue";
 }
 

@@ -1,4 +1,3 @@
-
 import React, { useMemo } from "react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { format, parseISO, isWithinInterval } from "date-fns";
@@ -7,12 +6,10 @@ import { useQuery } from "@tanstack/react-query";
 import { getAppointments } from "@/services/appointmentService";
 import { getServices } from "@/services/serviceService";
 import { Service } from "@/integrations/supabase/schema";
+import { DateRange } from "react-day-picker";
 
 interface RevenueChartProps {
-  dateRange: {
-    from: Date | undefined;
-    to: Date | undefined;
-  };
+  dateRange: DateRange;
 }
 
 const RevenueChart = ({ dateRange }: RevenueChartProps) => {

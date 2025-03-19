@@ -8,9 +8,10 @@ import ServicePopularity from "@/components/reports/ServicePopularity";
 import ClientGrowth from "@/components/reports/ClientGrowth";
 import MonthlyComparisonTable from "@/components/reports/MonthlyComparisonTable";
 import DateRangePicker from "@/components/reports/DateRangePicker";
+import { DateRange } from "react-day-picker";
 
 const Reports = () => {
-  const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
+  const [dateRange, setDateRange] = useState<DateRange>({
     from: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
     to: new Date()
   });

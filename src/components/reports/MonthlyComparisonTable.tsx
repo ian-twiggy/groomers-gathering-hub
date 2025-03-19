@@ -1,27 +1,13 @@
-
 import React, { useMemo } from "react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { parseISO, isWithinInterval, subMonths, startOfMonth, endOfMonth, format } from "date-fns";
-import { ptBR } from "date-fns/locale";
 import { useQuery } from "@tanstack/react-query";
 import { getAppointments } from "@/services/appointmentService";
 import { getServices } from "@/services/serviceService";
 import { getClients } from "@/services/clientService";
-import { ArrowUpIcon, ArrowDownIcon, Minus } from "lucide-react";
-import { Service } from "@/integrations/supabase/schema";
+import { parseISO, isWithinInterval, subMonths, startOfMonth, endOfMonth } from "date-fns";
+import { DateRange } from "react-day-picker";
 
 interface MonthlyComparisonTableProps {
-  dateRange: {
-    from: Date | undefined;
-    to: Date | undefined;
-  };
-}
-
-interface MetricData {
-  currentPeriod: number;
-  previousPeriod: number;
-  change: number;
-  changePercent: number;
+  dateRange: DateRange;
 }
 
 const MonthlyComparisonTable = ({ dateRange }: MonthlyComparisonTableProps) => {
@@ -40,213 +26,147 @@ const MonthlyComparisonTable = ({ dateRange }: MonthlyComparisonTableProps) => {
     queryFn: getClients,
   });
 
-  const comparisonData = useMemo(() => {
-    if (!appointments || !services || !clients || !dateRange.from || !dateRange.to) {
-      return {
-        revenue: { currentPeriod: 0, previousPeriod: 0, change: 0, changePercent: 0 },
-        appointments: { currentPeriod: 0, previousPeriod: 0, change: 0, changePercent: 0 },
-        newClients: { currentPeriod: 0, previousPeriod: 0, change: 0, changePercent: 0 },
-        avgTicket: { currentPeriod: 0, previousPeriod: 0, change: 0, changePercent: 0 },
-      };
-    }
-
-    const serviceMap = new Map<string, Service>();
-    services.forEach((service) => {
-      serviceMap.set(service.id, service);
-    });
-
-    // Período atual
-    const currentStart = dateRange.from;
-    const currentEnd = dateRange.to;
-
-    // Período anterior (mesmo período do mês anterior)
-    const previousStart = subMonths(currentStart, 1);
-    const previousEnd = subMonths(currentEnd, 1);
-
-    // Filtrar agendamentos do período atual
-    const currentAppointments = appointments.filter((appointment) => {
-      const appointmentDate = parseISO(appointment.date);
-      return isWithinInterval(appointmentDate, {
-        start: currentStart,
-        end: currentEnd,
-      });
-    });
-
-    // Filtrar agendamentos do período anterior
-    const previousAppointments = appointments.filter((appointment) => {
-      const appointmentDate = parseISO(appointment.date);
-      return isWithinInterval(appointmentDate, {
-        start: previousStart,
-        end: previousEnd,
-      });
-    });
-
-    // Novos clientes do período atual
-    const currentNewClients = clients.filter((client) => {
-      const createdAt = parseISO(client.created_at);
-      return isWithinInterval(createdAt, {
-        start: currentStart,
-        end: currentEnd,
-      });
-    });
-
-    // Novos clientes do período anterior
-    const previousNewClients = clients.filter((client) => {
-      const createdAt = parseISO(client.created_at);
-      return isWithinInterval(createdAt, {
-        start: previousStart,
-        end: previousEnd,
-      });
-    });
-
-    // Calcular receita atual
-    let currentRevenue = 0;
-    currentAppointments.forEach((appointment) => {
-      const service = serviceMap.get(appointment.service_id || "");
-      if (service) {
-        currentRevenue += service.price;
-      }
-    });
-
-    // Calcular receita anterior
-    let previousRevenue = 0;
-    previousAppointments.forEach((appointment) => {
-      const service = serviceMap.get(appointment.service_id || "");
-      if (service) {
-        previousRevenue += service.price;
-      }
-    });
-
-    // Ticket médio atual
-    const currentAvgTicket = currentAppointments.length > 0 
-      ? currentRevenue / currentAppointments.length 
-      : 0;
-
-    // Ticket médio anterior
-    const previousAvgTicket = previousAppointments.length > 0 
-      ? previousRevenue / previousAppointments.length 
-      : 0;
-
-    // Calcular mudanças
-    const calculateChange = (current: number, previous: number): { change: number, changePercent: number } => {
-      const change = current - previous;
-      const changePercent = previous !== 0 ? (change / previous) * 100 : 0;
-      return { change, changePercent };
-    };
-
-    const revenueChange = calculateChange(currentRevenue, previousRevenue);
-    const appointmentsChange = calculateChange(currentAppointments.length, previousAppointments.length);
-    const newClientsChange = calculateChange(currentNewClients.length, previousNewClients.length);
-    const avgTicketChange = calculateChange(currentAvgTicket, previousAvgTicket);
-
-    return {
-      revenue: { 
-        currentPeriod: currentRevenue, 
-        previousPeriod: previousRevenue, 
-        ...revenueChange 
-      },
-      appointments: { 
-        currentPeriod: currentAppointments.length, 
-        previousPeriod: previousAppointments.length, 
-        ...appointmentsChange 
-      },
-      newClients: { 
-        currentPeriod: currentNewClients.length, 
-        previousPeriod: previousNewClients.length, 
-        ...newClientsChange 
-      },
-      avgTicket: { 
-        currentPeriod: currentAvgTicket, 
-        previousPeriod: previousAvgTicket, 
-        ...avgTicketChange 
-      },
-    };
-  }, [appointments, services, clients, dateRange]);
-
   if (isLoadingAppointments || isLoadingServices || isLoadingClients) {
     return <div className="flex items-center justify-center h-full">Carregando...</div>;
   }
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
-  };
-
-  const formatPercent = (value: number) => {
-    return `${value.toFixed(1)}%`;
-  };
-
-  const renderChangeIndicator = (data: MetricData) => {
-    if (Math.abs(data.changePercent) < 0.1) {
-      return <Minus className="h-4 w-4 text-gray-500" />;
-    }
-    
-    return data.changePercent > 0 ? (
-      <ArrowUpIcon className="h-4 w-4 text-green-500" />
-    ) : (
-      <ArrowDownIcon className="h-4 w-4 text-red-500" />
+  if (!dateRange.from || !dateRange.to) {
+    return (
+      <div className="flex items-center justify-center h-full text-muted-foreground">
+        Selecione um período para ver a comparação
+      </div>
     );
+  }
+
+  // Calcular estatísticas para o mês atual
+  const currentMonthStart = startOfMonth(dateRange.from);
+  const currentMonthEnd = endOfMonth(dateRange.to);
+
+  // Calcular estatísticas para o mês anterior
+  const previousMonthStart = startOfMonth(subMonths(currentMonthStart, 1));
+  const previousMonthEnd = endOfMonth(subMonths(currentMonthEnd, 1));
+
+  // Filtrar agendamentos do mês atual
+  const currentMonthAppointments = appointments?.filter(appointment => {
+    const appointmentDate = parseISO(appointment.date);
+    return isWithinInterval(appointmentDate, {
+      start: currentMonthStart,
+      end: currentMonthEnd
+    });
+  }) || [];
+
+  // Filtrar agendamentos do mês anterior
+  const previousMonthAppointments = appointments?.filter(appointment => {
+    const appointmentDate = parseISO(appointment.date);
+    return isWithinInterval(appointmentDate, {
+      start: previousMonthStart,
+      end: previousMonthEnd
+    });
+  }) || [];
+
+  // Calcular receita
+  const calculateRevenue = (filteredAppointments: any[]) => {
+    return filteredAppointments.reduce((total, appointment) => {
+      const service = services?.find(s => s.id === appointment.service_id);
+      return total + (service?.price || 0);
+    }, 0);
   };
 
-  const currentPeriodLabel = dateRange.from && dateRange.to 
-    ? `${format(dateRange.from, "dd/MM", { locale: ptBR })} - ${format(dateRange.to, "dd/MM", { locale: ptBR })}`
-    : "Período atual";
+  const currentRevenue = calculateRevenue(currentMonthAppointments);
+  const previousRevenue = calculateRevenue(previousMonthAppointments);
+  const revenueChange = previousRevenue ? ((currentRevenue - previousRevenue) / previousRevenue) * 100 : 100;
 
-  const previousPeriodStart = dateRange.from ? subMonths(dateRange.from, 1) : undefined;
-  const previousPeriodEnd = dateRange.to ? subMonths(dateRange.to, 1) : undefined;
-  
-  const previousPeriodLabel = previousPeriodStart && previousPeriodEnd
-    ? `${format(previousPeriodStart, "dd/MM", { locale: ptBR })} - ${format(previousPeriodEnd, "dd/MM", { locale: ptBR })}`
-    : "Período anterior";
+  // Número de agendamentos
+  const currentAppointmentsCount = currentMonthAppointments.length;
+  const previousAppointmentsCount = previousMonthAppointments.length;
+  const appointmentsChange = previousAppointmentsCount 
+    ? ((currentAppointmentsCount - previousAppointmentsCount) / previousAppointmentsCount) * 100 
+    : 100;
+
+  // Novos clientes
+  const currentNewClients = clients?.filter(client => {
+    const creationDate = parseISO(client.created_at);
+    return isWithinInterval(creationDate, {
+      start: currentMonthStart,
+      end: currentMonthEnd
+    });
+  }).length || 0;
+
+  const previousNewClients = clients?.filter(client => {
+    const creationDate = parseISO(client.created_at);
+    return isWithinInterval(creationDate, {
+      start: previousMonthStart,
+      end: previousMonthEnd
+    });
+  }).length || 0;
+
+  const newClientsChange = previousNewClients 
+    ? ((currentNewClients - previousNewClients) / previousNewClients) * 100 
+    : 100;
+
+  // Calcular valor médio por agendamento
+  const currentAvgTicket = currentAppointmentsCount ? currentRevenue / currentAppointmentsCount : 0;
+  const previousAvgTicket = previousAppointmentsCount ? previousRevenue / previousAppointmentsCount : 0;
+  const avgTicketChange = previousAvgTicket ? ((currentAvgTicket - previousAvgTicket) / previousAvgTicket) * 100 : 0;
+
+  // Formatação de mudança para exibição
+  const formatChange = (change: number) => {
+    const sign = change >= 0 ? '+' : '';
+    return `${sign}${change.toFixed(1)}%`;
+  };
+
+  // Classe de cor para mudança
+  const getChangeColorClass = (change: number) => {
+    return change >= 0 ? 'text-green-500' : 'text-red-500';
+  };
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Métrica</TableHead>
-          <TableHead>{currentPeriodLabel}</TableHead>
-          <TableHead>{previousPeriodLabel}</TableHead>
-          <TableHead>Variação</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        <TableRow>
-          <TableCell className="font-medium">Receita</TableCell>
-          <TableCell>{formatCurrency(comparisonData.revenue.currentPeriod)}</TableCell>
-          <TableCell>{formatCurrency(comparisonData.revenue.previousPeriod)}</TableCell>
-          <TableCell className="flex items-center gap-1">
-            {renderChangeIndicator(comparisonData.revenue)}
-            {formatPercent(comparisonData.revenue.changePercent)}
-          </TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell className="font-medium">Agendamentos</TableCell>
-          <TableCell>{comparisonData.appointments.currentPeriod}</TableCell>
-          <TableCell>{comparisonData.appointments.previousPeriod}</TableCell>
-          <TableCell className="flex items-center gap-1">
-            {renderChangeIndicator(comparisonData.appointments)}
-            {formatPercent(comparisonData.appointments.changePercent)}
-          </TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell className="font-medium">Novos Clientes</TableCell>
-          <TableCell>{comparisonData.newClients.currentPeriod}</TableCell>
-          <TableCell>{comparisonData.newClients.previousPeriod}</TableCell>
-          <TableCell className="flex items-center gap-1">
-            {renderChangeIndicator(comparisonData.newClients)}
-            {formatPercent(comparisonData.newClients.changePercent)}
-          </TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell className="font-medium">Ticket Médio</TableCell>
-          <TableCell>{formatCurrency(comparisonData.avgTicket.currentPeriod)}</TableCell>
-          <TableCell>{formatCurrency(comparisonData.avgTicket.previousPeriod)}</TableCell>
-          <TableCell className="flex items-center gap-1">
-            {renderChangeIndicator(comparisonData.avgTicket)}
-            {formatPercent(comparisonData.avgTicket.changePercent)}
-          </TableCell>
-        </TableRow>
-      </TableBody>
-    </Table>
+    <div className="overflow-x-auto">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b">
+            <th className="text-left py-2">Métrica</th>
+            <th className="text-right py-2">Atual</th>
+            <th className="text-right py-2">Anterior</th>
+            <th className="text-right py-2">Mudança</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr className="border-b">
+            <td className="py-3">Receita</td>
+            <td className="text-right">R$ {currentRevenue.toFixed(2)}</td>
+            <td className="text-right">R$ {previousRevenue.toFixed(2)}</td>
+            <td className={`text-right ${getChangeColorClass(revenueChange)}`}>
+              {formatChange(revenueChange)}
+            </td>
+          </tr>
+          <tr className="border-b">
+            <td className="py-3">Agendamentos</td>
+            <td className="text-right">{currentAppointmentsCount}</td>
+            <td className="text-right">{previousAppointmentsCount}</td>
+            <td className={`text-right ${getChangeColorClass(appointmentsChange)}`}>
+              {formatChange(appointmentsChange)}
+            </td>
+          </tr>
+          <tr className="border-b">
+            <td className="py-3">Ticket Médio</td>
+            <td className="text-right">R$ {currentAvgTicket.toFixed(2)}</td>
+            <td className="text-right">R$ {previousAvgTicket.toFixed(2)}</td>
+            <td className={`text-right ${getChangeColorClass(avgTicketChange)}`}>
+              {formatChange(avgTicketChange)}
+            </td>
+          </tr>
+          <tr>
+            <td className="py-3">Novos Clientes</td>
+            <td className="text-right">{currentNewClients}</td>
+            <td className="text-right">{previousNewClients}</td>
+            <td className={`text-right ${getChangeColorClass(newClientsChange)}`}>
+              {formatChange(newClientsChange)}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   );
 };
 

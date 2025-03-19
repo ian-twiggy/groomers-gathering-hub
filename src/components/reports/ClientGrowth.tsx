@@ -1,4 +1,3 @@
-
 import React, { useMemo } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { format, parseISO, isWithinInterval, startOfMonth, endOfMonth, differenceInMonths, addMonths } from "date-fns";
@@ -6,12 +5,10 @@ import { ptBR } from "date-fns/locale";
 import { useQuery } from "@tanstack/react-query";
 import { getClients } from "@/services/clientService";
 import { getAppointments } from "@/services/appointmentService";
+import { DateRange } from "react-day-picker";
 
 interface ClientGrowthProps {
-  dateRange: {
-    from: Date | undefined;
-    to: Date | undefined;
-  };
+  dateRange: DateRange;
   type?: "newClients" | "retention";
 }
 
