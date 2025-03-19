@@ -11,6 +11,7 @@ import Clients from "./pages/Clients";
 import Calendar from "./pages/Calendar";
 import Reports from "./pages/Reports";
 import ProactiveScheduling from "./pages/ProactiveScheduling";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import { useEffect } from "react";
 
@@ -50,6 +51,7 @@ const App = () => {
               <Route path="/calendar" element={<Calendar />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/proactive-scheduling" element={<ProactiveScheduling />} />
+              <Route path="/settings" element={<Settings />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </SidebarProvider>
