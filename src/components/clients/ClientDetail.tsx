@@ -1,59 +1,25 @@
 
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { getClient, updateClient, deleteClient } from "@/services/clientService";
 import { getAppointments } from "@/services/appointmentService";
 import { Client } from "@/integrations/supabase/schema";
 import { Appointment } from "@/integrations/supabase/schema";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
-import { 
-  Tabs, 
-  TabsContent, 
-  TabsList, 
-  TabsTrigger 
-} from "@/components/ui/tabs";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-  ArrowLeft,
-  Calendar,
-  Mail,
-  Phone,
-  Edit,
-  Trash2,
-  AlertCircle,
-} from "lucide-react";
-import { 
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AlertDialog, AlertDialogContent, AlertDialogAction, AlertDialogCancel, 
+         AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, 
+         AlertDialogTitle } from "@/components/ui/alert-dialog";
+
+// Import our new components
+import ClientDetailHeader from "./ClientDetailHeader";
+import ClientInfoCard from "./ClientInfoCard";
+import ClientOverview from "./ClientOverview";
+import AppointmentHistory from "./AppointmentHistory";
+import ClientDetailError from "./ClientDetailError";
 
 const ClientDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const { toast } = useToast();
   
   const [client, setClient] = useState<Client | null>(null);
@@ -125,7 +91,8 @@ const ClientDetail = () => {
         description: "O cliente foi removido com sucesso.",
       });
       
-      navigate("/clients");
+      // Navigation will be handled by ClientDetailHeader
+      window.location.href = "/clients";
     } catch (error: any) {
       console.error("Error deleting client:", error);
       toast({
@@ -143,19 +110,6 @@ const ClientDetail = () => {
     return date.toLocaleDateString('pt-BR');
   };
   
-  // Status badge color mapping
-  const statusColorMap = {
-    active: "bg-green-50 text-green-700 border-green-200",
-    inactive: "bg-gray-50 text-gray-700 border-gray-200",
-    new: "bg-blue-50 text-blue-700 border-blue-200",
-  };
-  
-  const statusTextMap = {
-    active: "Ativo",
-    inactive: "Inativo",
-    new: "Novo",
-  };
-  
   if (loading) {
     return (
       <div className="flex justify-center items-center h-96">
@@ -165,99 +119,20 @@ const ClientDetail = () => {
   }
   
   if (!client) {
-    return (
-      <div className="flex flex-col items-center justify-center h-96">
-        <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
-        <h2 className="text-2xl font-bold mb-2">Cliente não encontrado</h2>
-        <p className="text-gray-500 mb-4">O cliente que você está procurando não existe ou foi removido.</p>
-        <Button onClick={() => navigate("/clients")}>
-          <ArrowLeft className="mr-2 h-4 w-4" /> Voltar para lista de clientes
-        </Button>
-      </div>
-    );
+    return <ClientDetailError />;
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <Button 
-          variant="outline" 
-          onClick={() => navigate("/clients")}
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
-        </Button>
-        
-        <div className="flex space-x-2">
-          <Button 
-            variant="outline" 
-            onClick={() => navigate(`/clients/${id}/edit`)}
-          >
-            <Edit className="mr-2 h-4 w-4" /> Editar
-          </Button>
-          <Button 
-            variant="destructive" 
-            onClick={() => setConfirmDelete(true)}
-          >
-            <Trash2 className="mr-2 h-4 w-4" /> Remover
-          </Button>
-        </div>
-      </div>
+      <ClientDetailHeader 
+        clientId={id || ''} 
+        onDeleteClick={() => setConfirmDelete(true)} 
+      />
       
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col md:flex-row justify-between gap-6">
-            <div className="flex items-center space-x-4">
-              <Avatar className="h-20 w-20">
-                <AvatarImage src={client.image_url || undefined} alt={client.name} />
-                <AvatarFallback className="text-2xl">{client.name.charAt(0)}</AvatarFallback>
-              </Avatar>
-              
-              <div>
-                <h2 className="text-2xl font-bold">{client.name}</h2>
-                <div className="flex flex-col mt-1 space-y-1">
-                  <div className="flex items-center text-gray-500">
-                    <Mail className="h-4 w-4 mr-2" /> {client.email}
-                  </div>
-                  {client.phone && (
-                    <div className="flex items-center text-gray-500">
-                      <Phone className="h-4 w-4 mr-2" /> {client.phone}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex flex-col items-start md:items-end space-y-2">
-              <Badge className={`${statusColorMap[client.status as keyof typeof statusColorMap]} border`}>
-                {statusTextMap[client.status as keyof typeof statusTextMap]}
-              </Badge>
-              
-              <div className="flex space-x-2">
-                <Button 
-                  size="sm" 
-                  variant="outline"
-                  onClick={() => handleStatusChange('active')}
-                  disabled={client.status === 'active'}
-                >
-                  Ativar
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="outline"
-                  onClick={() => handleStatusChange('inactive')}
-                  disabled={client.status === 'inactive'}
-                >
-                  Desativar
-                </Button>
-              </div>
-              
-              <Button className="flex items-center mt-2">
-                <Calendar className="mr-2 h-4 w-4" /> Novo Agendamento
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <ClientInfoCard 
+        client={client} 
+        onStatusChange={handleStatusChange} 
+      />
       
       <Tabs defaultValue="overview">
         <TabsList>
@@ -266,144 +141,18 @@ const ClientDetail = () => {
         </TabsList>
         
         <TabsContent value="overview" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Informações do Cliente</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">Data de Cadastro</h3>
-                  <p className="mt-1">{formatDate(client.created_at)}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">Última Visita</h3>
-                  <p className="mt-1">{formatDate(client.last_visit)}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">Total de Visitas</h3>
-                  <p className="mt-1">{client.total_visits || 0}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">Serviço Favorito</h3>
-                  <p className="mt-1">{client.favorite_service || "Nenhum"}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle>Próximos Agendamentos</CardTitle>
-              <CardDescription>
-                Agendamentos futuros para este cliente
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {appointments.filter(a => a.status === 'upcoming' && new Date(a.date) >= new Date()).length > 0 ? (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Data</TableHead>
-                      <TableHead>Hora</TableHead>
-                      <TableHead>Serviço</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Ações</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {appointments
-                      .filter(a => a.status === 'upcoming' && new Date(a.date) >= new Date())
-                      .map((appointment) => (
-                        <TableRow key={appointment.id}>
-                          <TableCell>{formatDate(appointment.date)}</TableCell>
-                          <TableCell>{appointment.time}</TableCell>
-                          <TableCell>{appointment.service_id || 'N/A'}</TableCell>
-                          <TableCell>
-                            <Badge className="bg-green-50 text-green-700 border-green-200 border">
-                              Agendado
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <Button size="sm" variant="outline">Ver</Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                  </TableBody>
-                </Table>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  Nenhum agendamento futuro para este cliente
-                </div>
-              )}
-            </CardContent>
-            <CardFooter>
-              <Button variant="outline" className="w-full">
-                <Calendar className="mr-2 h-4 w-4" /> Agendar Novo Horário
-              </Button>
-            </CardFooter>
-          </Card>
+          <ClientOverview 
+            client={client} 
+            appointments={appointments} 
+            formatDate={formatDate} 
+          />
         </TabsContent>
         
         <TabsContent value="appointments">
-          <Card>
-            <CardHeader>
-              <CardTitle>Histórico de Agendamentos</CardTitle>
-              <CardDescription>
-                Todos os agendamentos deste cliente
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {appointments.length > 0 ? (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Data</TableHead>
-                      <TableHead>Hora</TableHead>
-                      <TableHead>Serviço</TableHead>
-                      <TableHead>Duração</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Ações</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {appointments.map((appointment) => (
-                      <TableRow key={appointment.id}>
-                        <TableCell>{formatDate(appointment.date)}</TableCell>
-                        <TableCell>{appointment.time}</TableCell>
-                        <TableCell>{appointment.service_id || 'N/A'}</TableCell>
-                        <TableCell>{appointment.duration} min</TableCell>
-                        <TableCell>
-                          <Badge 
-                            className={
-                              appointment.status === 'completed' 
-                                ? "bg-green-50 text-green-700 border-green-200 border"
-                                : appointment.status === 'cancelled'
-                                ? "bg-red-50 text-red-700 border-red-200 border"
-                                : "bg-blue-50 text-blue-700 border-blue-200 border"
-                            }
-                          >
-                            {appointment.status === 'completed' 
-                              ? 'Concluído' 
-                              : appointment.status === 'cancelled'
-                              ? 'Cancelado'
-                              : 'Agendado'}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Button size="sm" variant="outline">Ver</Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  Nenhum agendamento encontrado para este cliente
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          <AppointmentHistory 
+            appointments={appointments} 
+            formatDate={formatDate} 
+          />
         </TabsContent>
       </Tabs>
       
