@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -13,45 +14,40 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Search, Plus, MoreHorizontal, Calendar, Phone, Mail } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { supabase } from "@/integrations/supabase/client";
+import { getClients } from "@/services/clientService";
 import { Client } from "@/integrations/supabase/schema";
 import { useToast } from "@/hooks/use-toast";
+import NewClientForm from "./NewClientForm";
 
 const ClientList = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showNewClientForm, setShowNewClientForm] = useState(false);
   const isMobile = useIsMobile();
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   useEffect(() => {
-    const fetchClients = async () => {
-      try {
-        setLoading(true);
-        const { data, error } = await supabase
-          .from('clients')
-          .select('*')
-          .order('name');
-          
-        if (error) {
-          throw error;
-        }
-        
-        setClients(data || []);
-      } catch (error: any) {
-        console.error("Error fetching clients:", error.message);
-        toast({
-          title: "Erro ao carregar clientes",
-          description: error.message,
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-    
     fetchClients();
-  }, [toast]);
+  }, []);
+  
+  const fetchClients = async () => {
+    try {
+      setLoading(true);
+      const data = await getClients();
+      setClients(data);
+    } catch (error: any) {
+      console.error("Error fetching clients:", error.message);
+      toast({
+        title: "Erro ao carregar clientes",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
   
   // Filter clients based on search query
   const filteredClients = clients.filter((client) =>
@@ -79,6 +75,15 @@ const ClientList = () => {
     const date = new Date(dateString);
     return date.toLocaleDateString('pt-BR');
   };
+  
+  const navigateToClientDetail = (id: string) => {
+    navigate(`/clients/${id}`);
+  };
+  
+  const handleCreateAppointment = (clientId: string) => {
+    // Navigate to appointment creation page with client pre-selected
+    navigate(`/calendar/new?client=${clientId}`);
+  };
 
   return (
     <Card>
@@ -94,7 +99,10 @@ const ClientList = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <Button className="bg-gray-900 hover:bg-gray-800">
+          <Button 
+            className="bg-gray-900 hover:bg-gray-800"
+            onClick={() => setShowNewClientForm(true)}
+          >
             <Plus className="mr-2 h-4 w-4" /> Novo Cliente
           </Button>
         </div>
@@ -146,7 +154,11 @@ const ClientList = () => {
                     </tr>
                   ) : (
                     filteredClients.map((client) => (
-                      <tr key={client.id} className="hover:bg-gray-50">
+                      <tr 
+                        key={client.id} 
+                        className="hover:bg-gray-50 cursor-pointer"
+                        onClick={() => navigateToClientDetail(client.id)}
+                      >
                         <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <Avatar className="h-8 w-8">
@@ -181,13 +193,21 @@ const ClientList = () => {
                           <div className="text-sm text-gray-900">{client.favorite_service || "—"}</div>
                         </td>
                         <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
-                          <Badge className={`${statusColorMap[client.status]} border`}>
-                            {statusTextMap[client.status]}
+                          <Badge className={`${statusColorMap[client.status as keyof typeof statusColorMap]} border`}>
+                            {statusTextMap[client.status as keyof typeof statusTextMap]}
                           </Badge>
                         </td>
-                        <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500" onClick={(e) => e.stopPropagation()}>
                           <div className="flex space-x-2">
-                            <Button variant="outline" size="icon" className="h-8 w-8">
+                            <Button 
+                              variant="outline" 
+                              size="icon" 
+                              className="h-8 w-8"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleCreateAppointment(client.id);
+                              }}
+                            >
                               <Calendar className="h-4 w-4" />
                             </Button>
                             
@@ -198,10 +218,24 @@ const ClientList = () => {
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
-                                <DropdownMenuItem>Ver Perfil</DropdownMenuItem>
-                                <DropdownMenuItem>Editar</DropdownMenuItem>
-                                <DropdownMenuItem>Histórico</DropdownMenuItem>
-                                <DropdownMenuItem className="text-red-600">Desativar</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => navigateToClientDetail(client.id)}>
+                                  Ver Perfil
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => navigate(`/clients/${client.id}/edit`)}>
+                                  Editar
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleCreateAppointment(client.id)}>
+                                  Agendar
+                                </DropdownMenuItem>
+                                {client.status === 'active' ? (
+                                  <DropdownMenuItem className="text-red-600">
+                                    Desativar
+                                  </DropdownMenuItem>
+                                ) : (
+                                  <DropdownMenuItem className="text-green-600">
+                                    Ativar
+                                  </DropdownMenuItem>
+                                )}
                               </DropdownMenuContent>
                             </DropdownMenu>
                           </div>
@@ -229,6 +263,12 @@ const ClientList = () => {
           </div>
         </div>
       </CardContent>
+      
+      <NewClientForm 
+        open={showNewClientForm} 
+        onOpenChange={setShowNewClientForm} 
+        onSuccess={fetchClients}
+      />
     </Card>
   );
 };

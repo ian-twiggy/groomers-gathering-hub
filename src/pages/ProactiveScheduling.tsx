@@ -1,7 +1,8 @@
 
-import React from "react";
+import React, { useState } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import ProactiveCard from "@/components/scheduling/ProactiveCard";
+import ManualSuggestionForm from "@/components/scheduling/ManualSuggestionForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -9,6 +10,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { AlertCircle, CheckCircle, Clock, Settings } from "lucide-react";
 
 const ProactiveScheduling = () => {
+  const [showSuggestionForm, setShowSuggestionForm] = useState(false);
+  
   const pendingSuggestions = [
     {
       client: {
@@ -140,7 +143,10 @@ const ProactiveScheduling = () => {
               <TabsTrigger value="suggested">Sugestões</TabsTrigger>
               <TabsTrigger value="settings">Configurações</TabsTrigger>
             </TabsList>
-            <Button className="bg-gray-900 hover:bg-gray-800">
+            <Button 
+              className="bg-gray-900 hover:bg-gray-800"
+              onClick={() => setShowSuggestionForm(true)}
+            >
               Criar Sugestão Manual
             </Button>
           </div>
@@ -232,7 +238,11 @@ const ProactiveScheduling = () => {
                               </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <Button size="sm" className="bg-gray-900 hover:bg-gray-800">
+                              <Button 
+                                size="sm" 
+                                className="bg-gray-900 hover:bg-gray-800"
+                                onClick={() => setShowSuggestionForm(true)}
+                              >
                                 Sugerir Horário
                               </Button>
                             </td>
@@ -363,6 +373,11 @@ const ProactiveScheduling = () => {
           </TabsContent>
         </Tabs>
       </div>
+      
+      <ManualSuggestionForm 
+        open={showSuggestionForm} 
+        onOpenChange={setShowSuggestionForm} 
+      />
     </DashboardLayout>
   );
 };
