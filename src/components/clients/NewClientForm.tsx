@@ -23,6 +23,7 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Client } from "@/integrations/supabase/schema";
 
 const clientSchema = z.object({
   name: z.string().min(2, { message: "Nome deve ter pelo menos 2 caracteres" }),
@@ -54,7 +55,19 @@ const NewClientForm = ({ open, onOpenChange, onSuccess }: NewClientFormProps) =>
   
   const onSubmit = async (data: ClientFormValues) => {
     try {
-      await createClient(data);
+      // Include all required fields for the client object
+      const clientData: Omit<Client, 'id' | 'created_at' | 'updated_at'> = {
+        name: data.name,
+        email: data.email,
+        phone: data.phone || null,
+        status: data.status,
+        image_url: null,
+        last_visit: null,
+        total_visits: 0,
+        favorite_service: null
+      };
+      
+      await createClient(clientData);
       
       toast({
         title: "Cliente criado com sucesso",
