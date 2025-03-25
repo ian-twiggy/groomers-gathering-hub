@@ -11,12 +11,7 @@ import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import AppointmentFormFields from "./AppointmentFormFields";
-import { 
-  appointmentSchema, 
-  AppointmentFormValues,
-  availableTimeSlots,
-  availableServices
-} from "./AppointmentFormData";
+import { appointmentSchema, AppointmentFormValues } from "./AppointmentFormData";
 
 interface NewAppointmentDialogProps {
   open: boolean;
@@ -128,8 +123,6 @@ const NewAppointmentDialog = ({
               <AppointmentFormFields
                 clients={clients}
                 loading={loading}
-                availableTimeSlots={availableTimeSlots}
-                availableServices={availableServices}
               />
               
               <div className="flex justify-end space-x-2">

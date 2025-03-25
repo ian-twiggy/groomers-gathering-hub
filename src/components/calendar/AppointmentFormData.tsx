@@ -1,5 +1,7 @@
 
 import * as z from "zod";
+import { useQuery } from "@tanstack/react-query";
+import { getServices } from "@/services/serviceService";
 
 export const availableTimeSlots = [
   "09:00", "09:30", "10:00", "10:30", "11:00", "11:30", 
@@ -7,6 +9,21 @@ export const availableTimeSlots = [
   "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00"
 ];
 
+// Este hook retorna os serviços do banco de dados
+export const useAvailableServices = () => {
+  const { data: services = [] } = useQuery({
+    queryKey: ['services'],
+    queryFn: getServices,
+  });
+
+  return services.map(service => ({
+    id: service.id,
+    name: service.name,
+    duration: service.duration
+  }));
+};
+
+// Mantemos os serviços estáticos para fallback caso a consulta falhe
 export const availableServices = [
   { id: "1", name: "Corte de Cabelo", duration: 30 },
   { id: "2", name: "Barba", duration: 20 },

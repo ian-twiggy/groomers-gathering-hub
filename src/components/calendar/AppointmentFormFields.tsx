@@ -1,90 +1,64 @@
 
 import React, { useEffect } from "react";
+import { useFormContext } from "react-hook-form";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { CalendarIcon } from "lucide-react";
-import { useFormContext } from "react-hook-form";
-import { Client } from "@/integrations/supabase/schema";
-import { 
-  FormField, 
-  FormItem, 
-  FormLabel, 
-  FormControl, 
-  FormMessage 
-} from "@/components/ui/form";
 import { Calendar } from "@/components/ui/calendar";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { CalendarIcon } from "lucide-react";
+import { Client } from "@/integrations/supabase/schema";
 import { cn } from "@/lib/utils";
+import { AppointmentFormValues, availableTimeSlots, useAvailableServices } from "./AppointmentFormData";
 
 interface AppointmentFormFieldsProps {
   clients: Client[];
   loading: boolean;
-  availableTimeSlots: string[];
-  availableServices: {
-    id: string;
-    name: string;
-    duration: number;
-  }[];
 }
 
-const AppointmentFormFields = ({ 
-  clients, 
-  loading, 
-  availableTimeSlots, 
-  availableServices 
-}: AppointmentFormFieldsProps) => {
-  const form = useFormContext();
-
-  // Update duration when service changes
+const AppointmentFormFields = ({ clients, loading }: AppointmentFormFieldsProps) => {
+  const form = useFormContext<AppointmentFormValues>();
+  const services = useAvailableServices();
+  
+  // Atualiza duração quando o serviço é alterado
   useEffect(() => {
     const serviceId = form.watch("service_id");
     if (serviceId) {
-      const service = availableServices.find(s => s.id === serviceId);
-      if (service) {
-        form.setValue("duration", service.duration);
+      const selectedService = services.find(service => service.id === serviceId);
+      if (selectedService) {
+        form.setValue("duration", selectedService.duration);
       }
     }
-  }, [form.watch("service_id"), form, availableServices]);
+  }, [form.watch("service_id"), services, form]);
 
   return (
-    <>
+    <div className="space-y-4">
       <FormField
         control={form.control}
         name="client_id"
         render={({ field }) => (
           <FormItem>
             <FormLabel>Cliente</FormLabel>
-            <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
+            <Select
+              disabled={loading}
+              onValueChange={field.onChange}
+              value={field.value}
+            >
               <FormControl>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione um cliente" />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                {loading ? (
-                  <div className="flex justify-center p-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
-                  </div>
-                ) : (
-                  clients.map((client) => (
-                    <SelectItem key={client.id} value={client.id}>
-                      {client.name}
-                    </SelectItem>
-                  ))
-                )}
+                {clients.map((client) => (
+                  <SelectItem key={client.id} value={client.id}>
+                    {client.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             <FormMessage />
@@ -92,7 +66,7 @@ const AppointmentFormFields = ({
         )}
       />
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField
           control={form.control}
           name="date"
@@ -103,16 +77,16 @@ const AppointmentFormFields = ({
                 <PopoverTrigger asChild>
                   <FormControl>
                     <Button
-                      variant={"outline"}
+                      variant="outline"
                       className={cn(
-                        "w-full pl-3 text-left font-normal",
+                        "pl-3 text-left font-normal",
                         !field.value && "text-muted-foreground"
                       )}
                     >
                       {field.value ? (
                         format(field.value, "PPP", { locale: ptBR })
                       ) : (
-                        <span>Selecione uma data</span>
+                        <span>Escolha uma data</span>
                       )}
                       <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                     </Button>
@@ -123,9 +97,8 @@ const AppointmentFormFields = ({
                     mode="single"
                     selected={field.value}
                     onSelect={field.onChange}
-                    disabled={(date) => date < new Date()}
+                    disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                     initialFocus
-                    className="pointer-events-auto"
                   />
                 </PopoverContent>
               </Popover>
@@ -173,7 +146,7 @@ const AppointmentFormFields = ({
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                {availableServices.map((service) => (
+                {services.map((service) => (
                   <SelectItem key={service.id} value={service.id}>
                     {service.name} ({service.duration} min)
                   </SelectItem>
@@ -187,13 +160,31 @@ const AppointmentFormFields = ({
       
       <FormField
         control={form.control}
+        name="duration"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Duração (minutos)</FormLabel>
+            <FormControl>
+              <Input
+                type="number"
+                {...field}
+                onChange={(e) => field.onChange(parseInt(e.target.value))}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      
+      <FormField
+        control={form.control}
         name="notes"
         render={({ field }) => (
           <FormItem>
             <FormLabel>Observações</FormLabel>
             <FormControl>
               <Textarea
-                placeholder="Adicione observações sobre o agendamento..."
+                placeholder="Alguma observação para este agendamento?"
                 className="resize-none"
                 {...field}
               />
@@ -202,7 +193,7 @@ const AppointmentFormFields = ({
           </FormItem>
         )}
       />
-    </>
+    </div>
   );
 };
 
