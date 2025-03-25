@@ -18,20 +18,33 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Calendar, Plus } from "lucide-react";
 
 interface AppointmentHistoryProps {
   appointments: Appointment[];
   formatDate: (dateString: string | null) => string;
+  onNewAppointmentClick: () => void;
 }
 
-const AppointmentHistory = ({ appointments, formatDate }: AppointmentHistoryProps) => {
+const AppointmentHistory = ({ appointments, formatDate, onNewAppointmentClick }: AppointmentHistoryProps) => {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Histórico de Agendamentos</CardTitle>
-        <CardDescription>
-          Todos os agendamentos deste cliente
-        </CardDescription>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <CardTitle>Histórico de Agendamentos</CardTitle>
+          <CardDescription>
+            Todos os agendamentos deste cliente
+          </CardDescription>
+        </div>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="flex items-center gap-1"
+          onClick={onNewAppointmentClick}
+        >
+          <Calendar className="h-4 w-4" />
+          Novo Agendamento
+        </Button>
       </CardHeader>
       <CardContent>
         {appointments.length > 0 ? (
@@ -79,7 +92,16 @@ const AppointmentHistory = ({ appointments, formatDate }: AppointmentHistoryProp
           </Table>
         ) : (
           <div className="text-center py-8 text-gray-500">
-            Nenhum agendamento encontrado para este cliente
+            <p className="mb-4">Nenhum agendamento encontrado para este cliente</p>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex items-center gap-1 mx-auto"
+              onClick={onNewAppointmentClick}
+            >
+              <Plus className="h-4 w-4" />
+              Agendar Atendimento
+            </Button>
           </div>
         )}
       </CardContent>

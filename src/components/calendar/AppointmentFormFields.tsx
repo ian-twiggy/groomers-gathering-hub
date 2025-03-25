@@ -18,9 +18,10 @@ import { AppointmentFormValues, availableTimeSlots, useAvailableServices } from 
 interface AppointmentFormFieldsProps {
   clients: Client[];
   loading: boolean;
+  disableClientField?: boolean;
 }
 
-const AppointmentFormFields = ({ clients, loading }: AppointmentFormFieldsProps) => {
+const AppointmentFormFields = ({ clients, loading, disableClientField = false }: AppointmentFormFieldsProps) => {
   const form = useFormContext<AppointmentFormValues>();
   const services = useAvailableServices();
   
@@ -44,7 +45,7 @@ const AppointmentFormFields = ({ clients, loading }: AppointmentFormFieldsProps)
           <FormItem>
             <FormLabel>Cliente</FormLabel>
             <Select
-              disabled={loading}
+              disabled={loading || disableClientField}
               onValueChange={field.onChange}
               value={field.value}
             >

@@ -123,6 +123,7 @@ const NewAppointmentDialog = ({
               <AppointmentFormFields
                 clients={clients}
                 loading={loading}
+                disableClientField={!!selectedClient}
               />
               
               <div className="flex justify-end space-x-2">

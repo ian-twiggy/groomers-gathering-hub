@@ -11,12 +11,13 @@ import { AlertDialog, AlertDialogContent, AlertDialogAction, AlertDialogCancel,
          AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, 
          AlertDialogTitle } from "@/components/ui/alert-dialog";
 
-// Import our new components
+// Import our components
 import ClientDetailHeader from "./ClientDetailHeader";
 import ClientInfoCard from "./ClientInfoCard";
 import ClientOverview from "./ClientOverview";
 import AppointmentHistory from "./AppointmentHistory";
 import ClientDetailError from "./ClientDetailError";
+import NewAppointmentDialog from "@/components/calendar/NewAppointmentDialog";
 
 const ClientDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -26,6 +27,7 @@ const ClientDetail = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [showNewAppointment, setShowNewAppointment] = useState(false);
   
   useEffect(() => {
     const fetchData = async () => {
@@ -109,6 +111,18 @@ const ClientDetail = () => {
     const date = new Date(dateString);
     return date.toLocaleDateString('pt-BR');
   };
+
+  const handleAppointmentSuccess = () => {
+    // Atualiza a lista de agendamentos após criar um novo
+    if (!id) return;
+    
+    getAppointments().then((appointmentsData) => {
+      const clientAppointments = appointmentsData.filter(
+        (appointment) => appointment.client_id === id
+      );
+      setAppointments(clientAppointments);
+    });
+  };
   
   if (loading) {
     return (
@@ -126,7 +140,8 @@ const ClientDetail = () => {
     <div className="space-y-6">
       <ClientDetailHeader 
         clientId={id || ''} 
-        onDeleteClick={() => setConfirmDelete(true)} 
+        onDeleteClick={() => setConfirmDelete(true)}
+        onNewAppointmentClick={() => setShowNewAppointment(true)}
       />
       
       <ClientInfoCard 
@@ -145,6 +160,7 @@ const ClientDetail = () => {
             client={client} 
             appointments={appointments} 
             formatDate={formatDate} 
+            onNewAppointmentClick={() => setShowNewAppointment(true)}
           />
         </TabsContent>
         
@@ -152,6 +168,7 @@ const ClientDetail = () => {
           <AppointmentHistory 
             appointments={appointments} 
             formatDate={formatDate} 
+            onNewAppointmentClick={() => setShowNewAppointment(true)}
           />
         </TabsContent>
       </Tabs>
@@ -172,6 +189,13 @@ const ClientDetail = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <NewAppointmentDialog
+        open={showNewAppointment}
+        onOpenChange={setShowNewAppointment}
+        selectedClient={id}
+        onSuccess={handleAppointmentSuccess}
+      />
     </div>
   );
 };
