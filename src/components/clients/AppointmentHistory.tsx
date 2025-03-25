@@ -18,7 +18,8 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Plus } from "lucide-react";
+import { Calendar, Plus, Eye } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface AppointmentHistoryProps {
   appointments: Appointment[];
@@ -84,7 +85,12 @@ const AppointmentHistory = ({ appointments, formatDate, onNewAppointmentClick }:
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Button size="sm" variant="outline">Ver</Button>
+                    <Link to={`/calendar?appointment=${appointment.id}`}>
+                      <Button size="sm" variant="outline" className="flex items-center gap-1">
+                        <Eye className="h-4 w-4" />
+                        Ver
+                      </Button>
+                    </Link>
                   </TableCell>
                 </TableRow>
               ))}

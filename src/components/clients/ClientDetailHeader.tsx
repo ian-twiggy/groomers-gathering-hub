@@ -6,12 +6,14 @@ import { Button } from "@/components/ui/button";
 
 interface ClientDetailHeaderProps {
   clientId: string;
+  clientName?: string;
   onDeleteClick: () => void;
   onNewAppointmentClick: () => void;
 }
 
 const ClientDetailHeader = ({ 
   clientId, 
+  clientName,
   onDeleteClick,
   onNewAppointmentClick
 }: ClientDetailHeaderProps) => {
@@ -23,7 +25,9 @@ const ClientDetailHeader = ({
             <ArrowLeft className="h-4 w-4" />
           </Button>
         </Link>
-        <h1 className="text-2xl font-bold">Detalhes do Cliente</h1>
+        <h1 className="text-2xl font-bold">
+          {clientName ? `${clientName}` : 'Detalhes do Cliente'}
+        </h1>
       </div>
       
       <div className="flex gap-2">
