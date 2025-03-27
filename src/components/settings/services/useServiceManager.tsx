@@ -13,7 +13,12 @@ const useServiceManager = () => {
   const queryClient = useQueryClient();
 
   // Consulta para buscar a lista de serviços
-  const { data: services = [], isLoading, error } = useQuery({
+  const { 
+    data: services = [], 
+    isLoading, 
+    error, 
+    refetch
+  } = useQuery({
     queryKey: ['services'],
     queryFn: getServices,
   });
@@ -30,6 +35,7 @@ const useServiceManager = () => {
       setDialogOpen(false);
     },
     onError: (error: any) => {
+      console.error("Error creating service:", error);
       toast({
         title: "Erro ao adicionar serviço",
         description: error.message || "Ocorreu um erro ao adicionar o serviço.",
@@ -48,8 +54,10 @@ const useServiceManager = () => {
         description: "O serviço foi atualizado com sucesso."
       });
       setDialogOpen(false);
+      setEditingService(null);
     },
     onError: (error: any) => {
+      console.error("Error updating service:", error);
       toast({
         title: "Erro ao atualizar serviço",
         description: error.message || "Ocorreu um erro ao atualizar o serviço.",
@@ -69,6 +77,7 @@ const useServiceManager = () => {
       });
     },
     onError: (error: any) => {
+      console.error("Error deleting service:", error);
       toast({
         title: "Erro ao remover serviço",
         description: error.message || "Ocorreu um erro ao remover o serviço.",
@@ -120,6 +129,7 @@ const useServiceManager = () => {
     services,
     isLoading,
     error,
+    refetch,
     dialogOpen,
     setDialogOpen,
     editingService,

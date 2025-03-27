@@ -13,6 +13,7 @@ const ServicesSettings = () => {
     services,
     isLoading,
     error,
+    refetch,
     dialogOpen,
     setDialogOpen,
     editingService,
@@ -24,7 +25,7 @@ const ServicesSettings = () => {
   } = useServiceManager();
 
   if (error) {
-    return <ErrorDisplay error={error as Error} />;
+    return <ErrorDisplay error={error as Error} onRetry={refetch} />;
   }
 
   return (
